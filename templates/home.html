@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Heart Disease Prediction</title>
+  <style>
+    body { 
+      font-family: Arial, sans-serif; 
+      background-color: #ffe6e9;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      background: white;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      width: 100%;
+      max-width: 1000px;
+      position: relative;
+    }
+    .header {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .header img {
+      height: 60px;
+    }
+    .header h1 {
+      font-size: 20px;
+      color: #ff1a4d;
+      margin: 0;
+    }
+    h2 {
+      grid-column: 1 / -1;
+      color: #ff1a4d;
+      margin-bottom: 20px;
+      font-size: 28px;
+      text-align: center;
+    }
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .input-group label {
+      font-size: 14px;
+      color: #555;
+      font-weight: 500;
+    }
+    input, select {
+      padding: 12px;
+      border: 2px solid #eee;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: all 0.3s ease;
+      background: #f8f8f8;
+    }
+    input:focus, select:focus {
+      outline: none;
+      border-color: #ff4d79;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(255, 77, 121, 0.1);
+    }
+    button {
+      grid-column: 1 / -1;
+      padding: 15px;
+      background: #ff4d79;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    button:hover {
+      background: #ff3366;
+      transform: translateY(-2px);
+    }
+    .form-container {
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      gap: 20px;
+    }
+    .prediction-result {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 15px;
+      background: #f8f8f8;
+      border-radius: 8px;
+      margin-top: 10px;
+    }
+    .bmi-calculator {
+      grid-column: 3;
+      background: #fff5f7;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    @media (max-width: 768px) {
+      .container {
+        grid-template-columns: 1fr;
+        padding: 25px;
+        gap: 20px;
+      }
+    }
+    .result {
+      margin-left: 10px;
+      padding: 10px;
+      border-radius: 8px;
+      font-weight: bold;
+    }
+    .high-risk {
+      background-color: #ffcccc;
+      color: #ff0000;
+    }
+    .low-risk {
+      background-color: #ccffcc;
+      color: #008000;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <img src="{{ url_for('static', filename='logo.png') }}" alt="SafeHeartAI Logo" class="logo">
+      <h1></h1>
+    </div>
+    <h2>Heart Disease Risk Assessment</h2>
+    <form id="predictionForm">
+      <!-- Left Side Inputs -->
+      <div class="input-group">
+        <label>Gender:</label>
+        <select name="male">
+          <option value="1">Male</option>
+          <option value="0">Female</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label>Age:</label>
+        <input type="text" name="age" placeholder="Enter age">
+      </div>
+      <div class="input-group">
+        <label>Education Level:</label>
+        <select name="education">
+          <option value="1">Basic Schooling</option>
+          <option value="2">High School</option>
+          <option value="3">College/University</option>
+          <option value="4">Master's/PhD</option>
+        </select>
+      </div>
+      
+      <div class="input-group">
+        <label>Smoker:</label>
+        <select name="currentSmoker">
+          <option value="1">Yes</option>
+          <option value="0">No</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label>Cigarettes Per Day:</label>
+        <input type="text" name="cigsPerDay" placeholder="Enter number">
+      </div>
+      <div class="input-group">
+        <label>Blood Pressure Meds:</label>
+        <select name="BPMeds">
+          <option value="1">Yes</option>
+          <option value="0">No</option>
+        </select>
+      </div>
+      
+      <div class="input-group">
+        <label>Stroke History:</label>
+        <select name="prevalentStroke">
+          <option value="1">Yes</option>
+          <option value="0">No</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label>Hypertension:</label>
+        <select name="prevalentHyp">
+          <option value="1">Yes</option>
+          <option value="0">No</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label>Diabetes:</label>
+        <select name="diabetes">
+          <option value="1">Yes</option>
+          <option value="0">No</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label>Total Cholesterol (From Lipid Profile Test):</label>
+        <input type="text" name="totChol" placeholder="mg/dL">
+      </div>
+      <div class="input-group">
+        <label>Blood Pressure:</label>
+        <div style="display: flex; gap: 10px;">
+          <input type="text" name="sysBP" placeholder="Systolic" style="flex: 1;">
+          <input type="text" name="diaBP" placeholder="Diastolic" style="flex: 1;">
+        </div>
+      </div>
+      <div class="input-group">
+        <label>BMI:</label>
+        <input type="text" id="bmiResult" name="BMI" placeholder="kg/m²">
+      </div>
+      <div class="input-group">
+        <label>Heart Rate:</label>
+        <input type="text" name="heartRate" placeholder="bpm">
+      </div>
+      <div class="input-group">
+        <label>Glucose Level (Fasting Blood sugar):</label>
+        <input type="text" name="glucose" placeholder="mg/dL">
+      </div>
+
+      <button type="submit">Analyze Health Risk</button>
+      <div id="predictionResult" class="result"></div>
+    </form>
+
+    <!-- BMI Calculator on the Right with Unit Toggles -->
+    <div class="bmi-calculator">
+      <h3>BMI Calculator</h3>
+      <label>Height</label>
+      <div style="display: flex; gap: 10px;">
+        <input type="text" id="height" placeholder="Enter height">
+        <select id="heightUnit">
+          <option value="cm">cm</option>
+          <option value="ft">feet</option>
+        </select>
+      </div>
+      <label>Weight</label>
+      <div style="display: flex; gap: 10px;">
+        <input type="text" id="weight" placeholder="Enter weight">
+        <select id="weightUnit">
+          <option value="kg">kg</option>
+          <option value="lbs">lbs</option>
+        </select>
+      </div>
+      <button type="button" onclick="calculateBMI()">Calculate BMI</button>
+    </div>
+  </div>
+
+  <script>
+    function calculateBMI() {
+      let height = parseFloat(document.getElementById("height").value);
+      let weight = parseFloat(document.getElementById("weight").value);
+      let heightUnit = document.getElementById("heightUnit").value;
+      let weightUnit = document.getElementById("weightUnit").value;
+      
+      // Convert height to cm if in feet
+      if (heightUnit === "ft") {
+        height = height * 30.48;
+      }
+      // Convert weight to kg if in lbs
+      if (weightUnit === "lbs") {
+        weight = weight / 2.205;
+      }
+      
+      // Convert height in cm to meters
+      let heightMeters = height / 100;
+      if (heightMeters > 0 && weight > 0) {
+        let bmi = (weight / (heightMeters * heightMeters)).toFixed(2);
+        document.getElementById("bmiResult").value = bmi;
+      } else {
+        alert("Please enter valid height and weight.");
+      }
+    }
+
+    document.getElementById("predictionForm").addEventListener("submit", function(event) {
+      event.preventDefault();
+      const formData = new FormData(this);
+      fetch('/predict', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        const resultElement = document.getElementById("predictionResult");
+        if (data.prediction === "High Risk") {
+          resultElement.className = "result high-risk";
+        } else {
+          resultElement.className = "result low-risk";
+        }
+        resultElement.innerHTML = `<h3>Assessment Result: ${data.prediction}</h3>`;
+      })
+      .catch(error => console.error('Error:', error));
+    });
+  </script>
+</body>
+</html>

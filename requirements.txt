@@ -1,0 +1,10 @@
+flask
+gunicorn
+pandas
+numpy
+scikit-learn
+joblib
+jupyter
+notebook
+imbalanced-learn  # Required for SMOTE
+matplotlib  # Required for visualization (if used)
